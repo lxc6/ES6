@@ -16,8 +16,8 @@ const addMsg = (name, content) => {
     let arr = getMsg();
     let obj = {
         "id": arr.length + 1,
-        "name": name,
-        "content": content,
+        name,
+        content,
         "dt": Date.now()
     }
     // 填入数组
