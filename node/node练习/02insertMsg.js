@@ -14,8 +14,10 @@ const getMsg = () => {
 const addMsg = (name, content) => {
     // 读出转化数组  数组.push  写入  
     let arr = getMsg();
+    // 判断id
+    let id = arr.length ? arr[arr.length - 1]["id"] + 1 : 1
     let obj = {
-        "id": arr.length + 1,
+        id,
         name,
         content,
         "dt": Date.now()
