@@ -56,8 +56,15 @@
     </form>
   </div>
   <script src="./js/jquery.min.js"></script>
+  <!-- 时间插件 -->
+  <script src="./js/dayjs/dayjs.min.js"></script>
+  <script src="./js/dayjs/zh_cn.js"></script>
+  <script src="./js/dayjs/relative.min.js"></script>
 
   <script>
+    // 时间插件
+    dayjs.locale('zh-cn'); // 全局设置，中文
+    dayjs.extend(dayjs_plugin_relativeTime); // 时间插件
     // 发送请求 获取数据 渲染
     // 因为该页面挂载在了web服务器上，所以必须从网址访问,不能直接alt+b打开
     getAndShow = () => {
@@ -75,12 +82,14 @@
         $('#messages').empty()
         // 遍历
         data.forEach(item => {
-          var str = `<li class="media">
+          // 时间戳转换为相对时间
+          item.relativeTime = dayjs(item.dt).fromNow();
+          let str = `<li class="media">
                     <img class="mr-3" src="./assets/avatar.png" alt="张三" />
                     <div class="media-body">
                       <h4>${item.name}</h4>
                       <p>${item.content}</p>
-                      <p>${item.dt}</p>
+                      <p>${item.relativeTime}</p>
                     </div>
                   </li>`
           // append被选元素的结尾添加
