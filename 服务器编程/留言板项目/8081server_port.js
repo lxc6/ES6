@@ -1,5 +1,4 @@
 // 引入模块 核心
-
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
@@ -9,7 +8,6 @@ const qs = require('querystring')
 const msg = require("./msg")
 // 创建静态库
 const STATIC_PATH = "board_front"; //  所有静态资源放置的地方
-
 // 集中设置 content-type 映射关系 
 const TYPE_MAP = {
     ".html": "text/html;charset=utf-8",
@@ -30,27 +28,22 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(result)) //结束本次请求并返回响应数据
     } else if (obj.pathname === "/add_msg" && req.method === "POST") {
         let result = '';
-        req.on('data', buf => {
-            result += buf;
-        })
+        req.on('data', buf => result += buf) //获取上传数据
         req.on('end', () => {
             let {
                 name,
                 content
             } = qs.parse(result);
-            msg.add(name, content);
-            // 返回一个响应值
-            let rs = {
+            msg.add(name, content); //录入数据
+            let rs = { // 返回一个响应值
                 code: 200,
                 msg: '添加成功'
             }
             res.setHeader('content-type', 'application/json;charset=utf-8')
             res.end(JSON.stringify(rs))
         })
-
     } else {
         let filePath = path.join(__dirname, STATIC_PATH, req.url)
-        // console.log(filePath);
         try {
             let rs = fs.readFileSync(filePath)
             let extName = path.extname(req.url)
