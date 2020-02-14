@@ -104,6 +104,11 @@
       // 1. 获取用户输入 
       let name = $("#txt_name").val().trim()
       let content = $("#txt_content").val().trim()
+      // 判断是否为空
+      if (name === '' || content === '') {
+        alert('不能为空')
+        return
+      }
       // 调接口
       $.post('http://192.168.0.104:8081/add_msg', {
         'name': name,
