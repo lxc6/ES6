@@ -31,13 +31,18 @@
     * url模块（核心）
 * `const URL = url.parse(req.url,true)`
     * 接口地址`URL.pathname `，接口参数：`URL.query{}`
-* **第五天：node**
+* **第五天：npm**
   * post接口
   * 留言板2.0
   * npm包
     * 安装 与 应用
       * `package.json文件 `   依赖  
     * 上传自己制作得npm包工具
+* **第六天：express框架**
+    * 托管静态资源
+    * 路由
+        * get
+        * post
 
 
 
