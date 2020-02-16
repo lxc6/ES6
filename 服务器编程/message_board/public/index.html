@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>留言板</title>
+  <link rel="stylesheet" href="./assets/bootstrap.css" />
+  <style>
+    .title {
+      margin: 20px auto;
+    }
+
+    #messages img {
+      width: 50px;
+    }
+
+    .main {
+      height: 360px;
+      padding: 20px;
+      overflow: auto;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="display-6 title">留言板</h1>
+    <hr />
+    <div class="main">
+      <ul id="messages" class="list-unstyled">
+        <!-- 遍历内容 -->
+
+      </ul>
+    </div>
+
+    <hr />
+    <div id="linkArea">
+      <a href="./login.html">请登陆</a>
+    </div>
+    <form id="formArea" style="display: block;">
+      <div class="form-group">
+        <label for="txt_name">称呼：</label>
+        <label for="label_name" id="label_name">****</label>
+        <button type="button" id="btnQuit">退出</button>
+      </div>
+      <div class="form-group" style="display: flex">
+        <label for="txt_content" style="display:none">留言：</label>
+        <input type="text" id="txt_content" class="form-control">
+
+        <button id="btn_send" type="button" class="btn btn-primary">提交</button>
+      </div>
+    </form>
+  </div>
+  <script src="./js/jquery.min.js"></script>
+  <!-- 时间插件 -->
+  <script src="./js/dayjs/dayjs.min.js"></script>
+  <script src="./js/dayjs/zh_cn.js"></script>
+  <script src="./js/dayjs/relative.min.js"></script>
+
+  <script>
+    // 时间插件
+    dayjs.locale('zh-cn'); // 全局设置，中文
+    dayjs.extend(dayjs_plugin_relativeTime); // 时间插件
+
+    // 获取用户名 将sessionID传入
+    $.get('http://192.168.0.104:8081/get_user').then(res => {
+      if (res.code == 200) {
+        $('#linkArea').hide()
+        $('#formArea').show()
+        $('#label_name').text(res.data.name)
+
+        // 添加留言  用到res.data.name
+        $('#btn_send').click(() => {
+          // 1. 获取用户输入 
+          let name = res.data.name
+          let content = $("#txt_content").val().trim()
+          // 判断是否为空
+          if (name === '' || content === '') {
+            alert('不能为空')
+            return
+          }
+          // 调接口
+          $.post('http://192.168.0.104:8081/add_msg', {
+            'name': name,
+            'content': content
+          }).then(res => {
+            if (res.code !== 200) {
+              alert('获取数据失败-_-!!')
+              return;
+            }
+            getAndShow();
+            $("#txt_name").val('')
+            $("#txt_content").val('')
+            // 滚动条实现跟随留言信息滚动
+            $('.main').animate({
+              scrollTop: $('#messages').height()
+            }, 500);
+          })
+        });
+
+      } else {
+        $('#linkArea').show()
+        $('#formArea').hide()
+      }
+    })
+
+    // 退出登录 删除sessionID
+    $('#btnQuit').click(() => {
+      // 删除 跳转
+      $.get('http://192.168.0.104:8081/get_user').then(res => {
+        if (res.code == 200) {
+          window.location.href = './login.html'
+        }
+      })
+    })
+
+    // 发送请求 获取数据 渲染
+    // 因为该页面挂载在了web服务器上，所以必须从网址访问,不能直接alt+b打开
+    getAndShow = () => {
+      $.get('http://192.168.0.104:8081/get_msg').then(res => {
+        // console.log(res.data);
+        let {
+          code,
+          data
+        } = res
+        if (code !== 200) {
+          alert('请求错误')
+          return
+        }
+        // 清空上一次残留，再渲染
+        $('#messages').empty()
+        // 遍历
+        data.forEach(item => {
+          // 时间戳转换为相对时间
+          item.relativeTime = dayjs(item.dt).fromNow();
+          let str = `<li class="media">
+                    <img class="mr-3" src="./assets/avatar.png" alt="张三" />
+                    <div class="media-body">
+                      <h4>${item.name}</h4>
+                      <p>${item.content}</p>
+                      <p>${item.relativeTime}</p>
+                    </div>
+                  </li>`
+          // append被选元素的结尾添加
+          $('#messages').append(str);
+        })
+      })
+    }
+    getAndShow();
+  </script>
+</body>
+
+</html>
